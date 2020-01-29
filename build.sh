@@ -50,15 +50,15 @@ install_cross_compiler () {
     fi
 }
 
-build () {
+build_bsp () {
     pushd "${FLEXBUILD_PATH}/$(ls ${FLEXBUILD_PATH})"
     export FBDIR=$(pwd)
     export PATH="$FBDIR:$FBDIR/tools:$PATH"
     ./tools/flex-builder -i mkrfs -a arm64 -m $TARGET_MACHINE
     ln -s $DOCUMENTS_DIR/$APP_COMPONENTS_DIR build/apps
-    ln -s $DOCUMENTS_DIR/$ARM_MODULES_DIR build/rfs/rootfs_ubuntu_bionic_LS_arm64/lib/modules
+    ln -s $DOCUMENTS_DIR/$ARM_MODULES_DIR build/rfs/$(ls build/rfs)/lib/modules
     ./tools/flex-builder -i merge-component -a arm64
-    ./tools/flex-builder -i compressrfs -a arm64
+    ./tools/flex-builder -i packrfs -a arm64
     popd
 }
 
@@ -66,5 +66,5 @@ update_dependency $APP_COMPONENTS $APP_COMPONENTS_DIR
 update_dependency $BOOT_PARTITION $BOOT_PARTITION_DIR
 update_dependency $ARM_MODULES $ARM_MODULES_DIR
 install_cross_compiler
-# build
+build_bsp
 

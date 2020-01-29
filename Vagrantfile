@@ -47,6 +47,7 @@ Vagrant.configure(2) do |config|
     make_dir /home/vagrant/Downloads
     make_dir /home/vagrant/Documents
     sudo apt-get update
+    sudo dpkg --configure -a
 
   SHELL
 end
