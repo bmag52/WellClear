@@ -22,6 +22,16 @@ BOOT_PARTITION_DIR='boot_partition'
 ARM_MODULES_DIR='arm_modules'
 FLEXBUILD_PATH=$DOCUMENTS_DIR/flexbuild
 ROOT_DIR=$(git rev-parse --show-toplevel)
+ARGS=$@
+
+check_args () {
+    for arg in $ARGS; do
+        if [ $arg == $1 ]; then
+            return 0
+        fi
+    done
+    return 1
+}
 
 make_dir () {
   if [ -d $1 ]; then
@@ -42,7 +52,7 @@ update_dependency () {
 install_cross_compiler () {
     local a=0
     local b=0
-    if [ $# -gt 0 ] && [[ $1  == "-install_cross" ]]; then a=1; fi
+    if check_args "-install_cross"; then a=1; fi
     if [ ! -d $FLEXBUILD_PATH ] || [ $(ls $FLEXBUILD_PATH | wc -l) -eq "0" ]; then b=1; fi
     if [[ $a || $b ]]; then
         make_dir $FLEXBUILD_PATH
@@ -51,15 +61,18 @@ install_cross_compiler () {
 }
 
 build_bsp () {
-    pushd "${FLEXBUILD_PATH}/$(ls ${FLEXBUILD_PATH})"
-    export FBDIR=$(pwd)
-    export PATH="$FBDIR:$FBDIR/tools:$PATH"
-    ./tools/flex-builder -i mkrfs -a arm64 -m $TARGET_MACHINE
-    ln -s $DOCUMENTS_DIR/$APP_COMPONENTS_DIR build/apps
-    ln -s $DOCUMENTS_DIR/$ARM_MODULES_DIR build/rfs/$(ls build/rfs)/lib/modules
-    ./tools/flex-builder -i merge-component -a arm64
-    ./tools/flex-builder -i packrfs -a arm64
-    popd
+    if check_args "-build_bsp"; then
+        local flexbuild_dir="${FLEXBUILD_PATH}/$(ls ${FLEXBUILD_PATH})"
+        export FBDIR=$flexbuild_dir
+        export PATH="$FBDIR:$FBDIR/tools:$PATH"
+        pushd $flexbuild_dir
+        ./tools/flex-builder -i mkrfs -a arm64 -m $TARGET_MACHINE
+        ln -s $DOCUMENTS_DIR/$APP_COMPONENTS_DIR build/apps
+        ln -s $DOCUMENTS_DIR/$ARM_MODULES_DIR build/rfs/$(ls build/rfs)/lib/modules
+        ./tools/flex-builder -i merge-component -a arm64
+        ./tools/flex-builder -i packrfs -a arm64
+        popd
+    fi
 }
 
 update_dependency $APP_COMPONENTS $APP_COMPONENTS_DIR
