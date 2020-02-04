@@ -5,15 +5,19 @@ SRC1   = $(SRC0:src/DaidalusExample.cpp=)
 SRC2   = $(SRC1:src/DaidalusAlerting.cpp=)
 SRCS   = $(SRC2:src/DaidalusBatch.cpp=)
 OBJS   = $(SRCS:.cpp=.o)
-INCLUDEFLAGS = -Iinclude 
-CXXFLAGS = $(INCLUDEFLAGS) -Wall -O 
+INCLUDEFLAGS = -Iinclude
+
+CXX=aarch64-linux-gnu-g++
+CXXFLAGS = $(INCLUDEFLAGS) -Wall -O
 
 all: lib examples
 
 lib: $(OBJS)
 	@echo 
 	@echo "** Building DAIDALUS library"
-	ar -cr lib/DAIDALUS.a $(OBJS) && ranlib lib/DAIDALUS.a #&& rm *.o
+	ar -cr lib/DAIDALUS.a $(OBJS)
+	ranlib lib/DAIDALUS.a
+	rm src/*.o
 	@echo 
 
 examples:
