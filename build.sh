@@ -20,6 +20,7 @@ TARGET_MACHINE='ls1028aqds'
 APP_COMPONENTS_DIR='app_components'
 BOOT_PARTITION_DIR='boot_partition'
 ARM_MODULES_DIR='arm_modules'
+DAIDALUS_DIR=/home/vagrant/Wellclear/DAIDALUS/C++
 FLEXBUILD_PATH=$DOCUMENTS_DIR/flexbuild
 ROOT_DIR=$(git rev-parse --show-toplevel)
 ARGS=$@
@@ -54,7 +55,7 @@ install_cross_compiler () {
     local b=0
     if check_args "-install_cross"; then a=1; fi
     if [ ! -d $FLEXBUILD_PATH ] || [ $(ls $FLEXBUILD_PATH | wc -l) -eq "0" ]; then b=1; fi
-    if [[ $a || $b ]]; then
+    if [ $a -eq "1"  ] || [ $b -eq "1" ]; then
         make_dir $FLEXBUILD_PATH
         tar -xvf $(find $ROOT_DIR -name '*.tgz') -C $FLEXBUILD_PATH
     fi
@@ -70,6 +71,28 @@ build_bsp () {
         ln -s $DOCUMENTS_DIR/$APP_COMPONENTS_DIR build/apps
         ln -s $DOCUMENTS_DIR/$ARM_MODULES_DIR build/rfs/$(ls build/rfs)/lib/modules
         ./tools/flex-builder -i merge-component -a arm64
+        popd
+    fi
+}
+
+build_daidalus () {
+    if check_args "-build_daidalus"; then
+        pushd $DAIDALUS_DIR
+        make lib -j 8
+        make examples -j 8
+        popd
+    fi
+}
+
+package_bsp () {
+    if check_args "-package_bsp"; then
+        local flexbuild_dir="${FLEXBUILD_PATH}/$(ls ${FLEXBUILD_PATH})"
+        local usr_dir=$flexbuild_dir/build/rfs/$(ls $flexbuild_dir/build/rfs)/home/user
+        export FBDIR=$flexbuild_dir
+        export PATH="$FBDIR:$FBDIR/tools:$PATH"
+        pushd $flexbuild_dir
+        cp $DAIDALUS_DIR/Daidalus* $usr_dir
+        cp -r $DAIDALUS_DIR/lib $usr_dir
         ./tools/flex-builder -i packrfs -a arm64
         popd
     fi
@@ -80,4 +103,6 @@ update_dependency $BOOT_PARTITION $BOOT_PARTITION_DIR
 update_dependency $ARM_MODULES $ARM_MODULES_DIR
 install_cross_compiler
 build_bsp
+build_daidalus
+package_bsp
 
