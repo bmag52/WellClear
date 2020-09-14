@@ -4,11 +4,25 @@ SRC0   = $(wildcard src/*.cpp)
 SRC1   = $(SRC0:src/DaidalusExample.cpp=)
 SRC2   = $(SRC1:src/DaidalusAlerting.cpp=)
 SRCS   = $(SRC2:src/DaidalusBatch.cpp=)
+RTOS   = ../../rtos/apps
 OBJS   = $(SRCS:.cpp=.o)
 INCLUDEFLAGS = -Iinclude
 
+# Include the Directories required for the drivers:
+#########################################################################
+INCLReqDrv   = -I$(RTOS)/include/drivers
+# INCLReqDrv  += -I$(RTOS)/include/lib/stdlib
+INCLReqDrv  += -I$(RTOS)/include/common
+INCLReqDrv  += -I$(RTOS)/include/lib
+INCLReqDrv  += -I$(RTOS)/include/plat
+# INCLReqDrv  += -I$(RTOS)/include/lib/stdlib
+# INCLReqDrv  += -I$(RTOS)/include/lib/stdlib/sys
+
 CXX=aarch64-linux-gnu-g++
-CXXFLAGS = $(INCLUDEFLAGS) -Wall -O
+CXXFLAGS = $(INCLUDEFLAGS) $(INCLReqDrv) -Wall -O
+
+# Create RTOSLIB variable
+RTOSLIB = librtos.o
 
 all: lib examples
 
@@ -35,5 +49,11 @@ examples:
 
 clean:
 	rm -f DaidalusExample $(OBJS) lib/DAIDALUS.a
+
+# Add The created variable to the linker
+# Link u-boot 
+##########################################################################
+$(LDOBJ): $(OBJS)
+	$(LD) $(LDflags) $(OBJS) $(RTOSLIB) -o $(LDOBJ) -Map app1.map
 
 .PHONY: all lib example

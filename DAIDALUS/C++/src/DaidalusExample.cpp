@@ -215,6 +215,27 @@ void printContours(Daidalus& daa) {
 }
 
 int main(int argc, char* argv[]) {
+
+	// pointers to allocate app
+	unsigned int *data_ptr;
+	unsigned long *ptr;
+
+	// mock cpu and pid for now :/
+	unsigned int pid = 1;
+	unsigned int cpu = 1;
+
+	//unsigned int el, sp, dai;
+	unsigned long start, end;
+
+	// For testing execution times.  Get the start time
+    asm volatile ("mrs %0, cntpct_el0" : "=r" (start) :  : "memory");
+
+    if(pid == 1) 
+	{
+      ptr       = (unsigned long *)0x84000000;
+      data_ptr  = (unsigned int *)0x84010000;
+	}
+
 	std::cout << "##" << std::endl;
 	std::cout << "## " << Daidalus::release() << std::endl;
 	std::cout << "##\n" << std::endl;
@@ -297,5 +318,22 @@ int main(int argc, char* argv[]) {
 	printContours(daa);
 	// continue with next time step
 
+	// Get the end time
+    asm volatile ("mrs %0, cntpct_el0" : "=r" (end) :  : "memory");
+
+    // Write the data to memory
+    *ptr         = end;
+    *(ptr+1)     = start;
+    *(ptr+2)     = (end-start);
+		
+	// Tell the os that this application has finished 
+	// This does not return
+	__asm__ __volatile__(
+		          "mov x0, %0\n"
+		          "mov x1, %1\n"
+		          "smc #77\n"
+			     :
+			     : "r" (cpu), "r" (pid)
+			     : "memory", "x0", "x1");
 }
 

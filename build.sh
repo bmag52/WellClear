@@ -79,7 +79,7 @@ build_daidalus () {
     if check_args "-build_daidalus"; then
         pushd $DAIDALUS_DIR
         make lib -j 8
-        make examples -j 8
+        make all -j 8
         popd
     fi
 }
