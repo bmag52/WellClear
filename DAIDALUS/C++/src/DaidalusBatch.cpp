@@ -247,7 +247,10 @@ int main(int argc, const char* argv[]) {
 		txtFiles.push_back(arga);
 	}
 	if (txtFiles.empty()) {
-		walker.printHelpMsg();
+		std::cout << "using hardcoded scenarios!" << std::endl;
+		txtFiles.push_back("USE_HARDCODE_1");
+		txtFiles.push_back("USE_HARDCODE_2");
+		// walker.printHelpMsg();
 	}
 	std::ofstream fout;
 	if (output != "") {

@@ -60,6 +60,14 @@ using std::endl;
 	    loadfile();
 	}
 
+	SequenceReader::SequenceReader(std::istringstream& in) {
+		error = ErrorLog("SequenceReader(no file)");
+		windowSize = AircraftState::DEFAULT_BUFFER_SIZE;
+		input = SeparatedInput(&in);
+		input.setCaseSensitive(false);            // headers & parameters are lower case
+		loadfile();
+	}
+
 	void SequenceReader::readFile(const string& filename) {
 	    std::ifstream in;
 	    in.open(filename.c_str());

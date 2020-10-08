@@ -109,7 +109,10 @@ std::string DaidalusProcessor::getOptionsString() {
 }
 
 void DaidalusProcessor::processFile(const std::string& filename, Daidalus &daa) {
-	DaidalusFileWalker dw = DaidalusFileWalker(filename);
+	DaidalusFileWalker dw;
+	if (filename == "USE_HARDCODE_1") { dw = DaidalusFileWalker(1); }
+	else if (filename == "USE_HARDCODE_2") { dw = DaidalusFileWalker(2); }
+	else { dw = DaidalusFileWalker(filename); }
 	double from = from_;
 	double to = to_;
 	if (from < 0) {

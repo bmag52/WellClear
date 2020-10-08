@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <sstream>
 #include <map>
 
 namespace larcfm {
@@ -73,6 +74,8 @@ public:
 	SequenceReader();
 	
 	SequenceReader(const std::string& filename);
+
+	SequenceReader(std::istringstream& in);
 
 	/** Read a new file into an existing StateReader.  Parameters are preserved if they are not specified in the file. */
 	void readFile(const std::string& filename);

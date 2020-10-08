@@ -11,7 +11,29 @@
 
 #include "DaidalusFileWalker.h"
 
+#include <sstream>
+#include <assert.h>
+
 namespace larcfm {
+
+DaidalusFileWalker::DaidalusFileWalker(const int& i) {
+  if (i == 1)
+  {
+    std::istringstream in(MULTIARCRAFT);
+    sr_ = SequenceReader(in);
+  }
+  else if (i == 2)
+  {
+    std::istringstream in(H1);
+    sr_ = SequenceReader(in);
+  }
+  else
+  {
+    assert(false);
+  }
+
+  init();
+}
 
 DaidalusFileWalker::DaidalusFileWalker(const std::string& filename) {
   sr_ = SequenceReader(filename);
